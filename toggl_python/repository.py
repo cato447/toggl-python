@@ -241,6 +241,9 @@ class WorkspaceTimeEntries(BaseRepository):
     ENTITY_CLASS = TimeEntry
     EXCLUDED_METHODS = ("list", "retrieve")
 
+    def delete_timeentry(self, id) -> bool:
+        return self.delete(self.LIST_URL.join(f"{id}")).is_success()
+
 
 class ReportTimeEntries(BaseRepository):
     BASE_URL: httpx.URL = httpx.URL("https://api.track.toggl.com/reports/api/v2/")
