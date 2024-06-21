@@ -67,18 +67,12 @@ class Api:
 
         _url = self.BASE_URL.join(url)
 
-        response = (
-            method(_url, params=params, headers=self.HEADERS)
-            if method.__name__ == "get"
-            else method(
-                _url,
-                params=params,
-                json=data,
-                files=files,
-                headers=self.HEADERS,
-            )
-        )
-
+        response = ({
+                "get": method(_url, params=params, headers=self.HEADERS),
+                "delete": method(_url, headers=self.HEADERS)
+                }.get(method.__name___, method(_url, params=params, json=data,
+                                                files=files, headers=self.HEADERS)))
+                    
         raise_from_response(response)
 
         return response
