@@ -70,8 +70,8 @@ class Api:
         response = {
                 "get": method(_url, params=params, headers=self.HEADERS),
                 "delete": method(_url, headers=self.HEADERS)
-                }.get(method.__name__, method(_url, params=params, json=data,
-                                                files=files, headers=self.HEADERS))
+                }.get(method.__name__) or method(_url, params=params, json=data,
+                                                files=files, headers=self.HEADERS)
                     
         raise_from_response(response)
 
