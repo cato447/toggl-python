@@ -62,7 +62,9 @@ class BaseRepository(Api):
             method = super().__getattr__(attr)
         except AttributeError:
             if attr in self.ADDITIONAL_METHODS.keys():
-                method = partial(self.additionat_method, **self.ADDITIONAL_METHODS[attr])
+                method = partial(
+                    self.additionat_method, **self.ADDITIONAL_METHODS[attr]
+                )
             else:
                 raise AttributeError(f"No such method ({attr})!")
         return method
@@ -106,7 +108,9 @@ class BaseRepository(Api):
             if not self.DETAIL_URL:
                 raise AttributeError("Not defined DETAIL_URL")
             _url = (self.DETAIL_URL + "/" + url).format(id=_id)
-            return self._list(_url, entity, headers=self.HEADERS, param=params, data_key=data_key)
+            return self._list(
+                _url, entity, headers=self.HEADERS, param=params, data_key=data_key
+            )
         elif single_item:
             _url = str(self.BASE_URL) + f"{url}"
             return self._retrieve(
@@ -220,6 +224,22 @@ class Tags(BaseRepository):
 class TimeEntries(BaseRepository):
     LIST_URL = "me/time_entries"
     ENTITY_CLASS = TimeEntry
+    EXCLUDED_METHODS = ("create", "update", "partial_update")
+
+
+class WorkspaceTimeEntries(BaseRepository):
+    def __init__(
+        self,
+        workspace_id: str,
+        base_url: Optional[str] = None,
+        auth: Optional[Union[BasicAuth, TokenAuth]] = None,
+    ) -> None:
+        self.LIST_URL = f"workspaces/{workspace_id}/time_entries"
+        self.DETAIL_URL = self.LIST_URL + "/{id}/stop"
+        super().__init__(base_url, auth)
+
+    ENTITY_CLASS = TimeEntry
+    EXCLUDED_METHODS = ("list", "retrieve")
 
 
 class ReportTimeEntries(BaseRepository):

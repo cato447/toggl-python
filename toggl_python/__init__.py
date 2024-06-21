@@ -29,6 +29,7 @@ from .repository import (
     Users,
     Workspaces,
     WorkspaceUsers,
+    WorkspaceTimeEntries,
 )
 
 
@@ -60,4 +61,5 @@ __all__ = [
     "Workspaces",
     "WorkspaceUser",
     "WorkspaceUsers",
+    "WorkspaceTimeEntries",
 ]

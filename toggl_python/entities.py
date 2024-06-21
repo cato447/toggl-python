@@ -1,12 +1,22 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Callable, List, Optional, Union
 
-from pydantic import BaseModel, EmailStr, Field, HttpUrl
+from pydantic import BaseModel, EmailStr, Field, HttpUrl, field_serializer
 
 
 class BaseEntity(BaseModel):
     id: Optional[int] = None
     at: Optional[datetime] = None
+
+    def __eq__(self, value: object, /) -> bool:
+        return super().__eq__(value)
+
+    @field_serializer("at")
+    def _serialize_dt(self, dt: datetime, _info):
+        if dt is None:
+            return None
+        else:
+            return dt.astimezone().replace(microsecond=0).isoformat()
 
 
 class Client(BaseEntity):
@@ -34,6 +44,13 @@ class Project(BaseEntity):
     color: Union[str, int] = 0
     rate: Optional[float] = None
     created_at: Optional[datetime] = None
+
+    @field_serializer("created_at")
+    def _serialize_dt(self, dt: datetime, _info):
+        if dt is None:
+            return None
+        else:
+            return dt.astimezone().replace(microsecond=0).isoformat()
 
 
 class ProjectUser(BaseEntity):
@@ -67,12 +84,23 @@ class TimeEntry(BaseEntity):
     tid: Optional[int] = None
     description: Optional[str] = None
     billable: Optional[bool] = False
-    start: Union[datetime, Callable[[], datetime]] = datetime.now
+    start: Union[datetime, Callable[[], datetime]] = datetime.now(timezone.utc)
     stop: Optional[Union[datetime, Callable[[], datetime]]] = None
     duration: int
     created_with: Optional[str] = None
     tags: List[str] = []
     duronly: Optional[bool] = None
+
+    @field_serializer("start", "stop")
+    def _serialize_dt(self, dt: datetime, _info):
+        if dt is None:
+            return None
+        else:
+            return dt.astimezone().replace(microsecond=0).isoformat()
+    
+    def __hash__(self):
+        return hash((self.wid,self.duration,self.id,self.pid,self.description))
+
 
 
 class ReportTimeEntry(BaseEntity):
@@ -84,10 +112,17 @@ class ReportTimeEntry(BaseEntity):
     billable: Optional[int] = False
     is_billable: Optional[bool] = False
     cur: Optional[Union[str, bool]] = False
-    start: Union[datetime, Callable[[], datetime]] = datetime.now
+    start: Union[datetime, Callable[[], datetime]] = datetime.now(timezone.utc)
     end: Optional[Union[datetime, Callable[[], datetime]]] = None
     dur: int
     tags: List[str] = []
+
+    @field_serializer("start", "end")
+    def _serialize_dt(self, dt: datetime, _info):
+        if dt is None:
+            return None
+        else:
+            return dt.astimezone().replace(microsecond=0).isoformat()
 
 
 class Workspace(BaseEntity):
