@@ -242,7 +242,7 @@ class WorkspaceTimeEntries(BaseRepository):
     EXCLUDED_METHODS = ("list", "retrieve")
 
     def delete_timeentry(self, id) -> bool:
-        return self.delete(self.BASE_URL.join(self.LIST_URL).join(f"{id}")).is_success()
+        return self.delete(self.BASE_URL.join(f"{self.LIST_URL}/{id}")).is_success()
 
 
 class ReportTimeEntries(BaseRepository):
