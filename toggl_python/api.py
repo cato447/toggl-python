@@ -68,7 +68,7 @@ class Api:
         _url = self.BASE_URL.join(url)
 
         # call the method with differing arguments
-        # add "mode" : (lambda: <your method call>) to the dictionary
+        # add `"<mode>" : (lambda: <your method call>)` to the dictionary
         # if needed
         concrete_method = {
                 "get": (lambda : method(_url, params=params, headers=self.HEADERS)),
@@ -77,5 +77,7 @@ class Api:
                                                 files=files, headers=self.HEADERS)))
 
         response = concrete_method()
+
+        raise_from_response(response)
 
         return response
