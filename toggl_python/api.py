@@ -67,12 +67,15 @@ class Api:
 
         _url = self.BASE_URL.join(url)
 
-        response = {
-                "get": method(_url, params=params, headers=self.HEADERS),
-                "delete": method(_url, headers=self.HEADERS)
-                }.get(method.__name__) or method(_url, params=params, json=data,
-                                                files=files, headers=self.HEADERS)
-                    
-        raise_from_response(response)
+        # call the method with differing arguments
+        # add "mode" : (lambda: <your method call>) to the dictionary
+        # if needed
+        concrete_method = {
+                "get": (lambda : method(_url, params=params, headers=self.HEADERS)),
+                "delete": (lambda : method(_url, headers=self.HEADERS))
+                }.get(method.__name__, (lambda : method(_url, params=params, json=data,
+                                                files=files, headers=self.HEADERS)))
+
+        response = concrete_method()
 
         return response
